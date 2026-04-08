@@ -13,7 +13,7 @@ public class NhanVienEntity implements Serializable {
 	private String tenNV;
 	private int tuoi;
 	private Boolean phai;
-	private String phongBan;
+	private PhongBanEntity phongBan;
 	private Double tienLuong;
 	
 	public NhanVienEntity() {
@@ -21,7 +21,8 @@ public class NhanVienEntity implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public NhanVienEntity(String maNV, String hoNV, String tenNV, int tuoi, Boolean phai, String phongBan) {
+	public NhanVienEntity(String maNV, String hoNV, String tenNV, int tuoi, Boolean phai, PhongBanEntity phongBan,
+			Double tienLuong) {
 		super();
 		this.maNV = maNV;
 		this.hoNV = hoNV;
@@ -30,7 +31,7 @@ public class NhanVienEntity implements Serializable {
 		this.phai = phai;
 		this.phongBan = phongBan;
 		this.tienLuong = tienLuong;
-	}
+	}	
 
 	public String getMaNV() {
 		return maNV;
@@ -72,14 +73,14 @@ public class NhanVienEntity implements Serializable {
 		this.phai = phai;
 	}
 
-	public String getPhongBan() {
+	public PhongBanEntity getPhongBan() {
 		return phongBan;
 	}
 
-	public void setPhongBan(String phongBan) {
+	public void setPhongBan(PhongBanEntity phongBan) {
 		this.phongBan = phongBan;
 	}
-
+	
 	public Double getTienLuong() {
 		return tienLuong;
 	}

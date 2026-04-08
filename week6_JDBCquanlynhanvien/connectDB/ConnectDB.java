@@ -1,4 +1,4 @@
-package BaiTapJTabbedPane;
+package connectDB;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,7 +13,7 @@ public class ConnectDB {
     }
 
     public void connect() throws SQLException {
-        String url = "jdbc:sqlserver://localhost:1433;databaseName=QuanLyNhanVien;encrypt=true;trustServerCertificate=true";
+        String url = "jdbc:sqlserver://localhost:1433;databaseName=QuanLyNhanVienJDBC;encrypt=true;trustServerCertificate=true";
         String user = "sa";
         String password = "sapassword";
         con = DriverManager.getConnection(url, user, password);

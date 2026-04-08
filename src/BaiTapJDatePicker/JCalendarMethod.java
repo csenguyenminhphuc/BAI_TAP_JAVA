@@ -6,12 +6,12 @@ package BaiTapJDatePicker;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class JDatePickerMethod {
+public class JCalendarMethod {
 	private ArrayList<JDatePickerEntity> listNV;
 	private HashMap<String, JDatePickerEntity> mapNV;
 	private JDatePickerDao dao;
 	
-	public JDatePickerMethod() {
+	public JCalendarMethod() {
 		super();
 		this.listNV = new ArrayList<>();
 		this.mapNV = new HashMap<>();

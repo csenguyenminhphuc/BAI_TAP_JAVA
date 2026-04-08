@@ -37,11 +37,10 @@ public class JTabbedPaneGUI extends JFrame implements ActionListener {
 	private JButton btnXoaTrang;
 	private JButton btnLuu;
 	private JComboBox cboPhaiNV;
-	private JComboBox cboPhongBanNV;
-	private JComboBox cboPhongBan;
 	private NhanVienMethod NhanVienMethod;
-	private NhanVienDao NhanVienDao;
-	
+	private final String  filePath = "data/DanhSachNhanVien.dat";
+	private JComboBox cboPhongBan;
+	private JComboBox cboPhongBanNV;
 	
 	public JTabbedPaneGUI() {
 		setTitle("JTabbedPane");
@@ -57,19 +56,33 @@ public class JTabbedPaneGUI extends JFrame implements ActionListener {
 		
 		// Sau đó khởi tạo NhanVienMethod và load dữ liệu
 		NhanVienMethod = new NhanVienMethod();
-		NhanVienDao = new NhanVienDao();
 		
-		// Load dữ liệu từ database lên bảng
+		// Kiểm tra và load dữ liệu từ file
+		java.io.File file = new java.io.File(filePath);
+		if (file.exists()) {
+			// File tồn tại, load dữ liệu từ file
+			if (NhanVienMethod.loadDataFromFile(filePath)) {
+				JOptionPane.showMessageDialog(this, "Đã tải dữ liệu từ file:\n" + filePath, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(this, "Lỗi khi tải file dữ liệu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			// File không tồn tại
+			JOptionPane.showMessageDialog(this, "Không tìm thấy file dữ liệu:\n" + filePath + "\n\nChương trình sẽ chạy bình thường.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+		}
+		
+		// Load dữ liệu từ file lên bảng
 		loadDataToTable();
 		
 		setVisible(true);
+		
 		txtMaNV.setText("NV004");
 		txtHoNV.setText("Nguyễn Minh");
 		txtTenNV.setText("Phúc");
 		txtTuoiNV.setText("23");
 		txtTienLuongNV.setText("15000000");
 		cboPhaiNV.setSelectedItem("Nam");
-		cboPhongBanNV.setSelectedItem("Phòng kỹ thuật");
+		cboPhongBanNV.setSelectedIndex(1); // Chọn "Phòng tổ chức"
 	}
 
 	public void loadDataToTable() {
@@ -99,6 +112,7 @@ public class JTabbedPaneGUI extends JFrame implements ActionListener {
 		JPanel panelThemMoiNhanVien = new JPanel();
 		tabbedPane.addTab("Danh Sách Nhân Viên", panelDanhSachNhanVien);
 		tabbedPane.addTab("Thêm Mới Nhân Viên", panelThemMoiNhanVien);
+		tabbedPane.addTab("Thêm Mới Vua Tao", new JPanel()); // Tab trống để tạo khoảng cách
 		add(tabbedPane);
 		
 		// Tab 1: Danh Sách Nhân Viên
@@ -107,13 +121,17 @@ public class JTabbedPaneGUI extends JFrame implements ActionListener {
 		JLabel lblPhongBan = new JLabel("Phòng Ban:                   ");
 		lblPhongBan.setFont(new Font("Arial", Font.BOLD, 12));
 		panelPhongBan.add(lblPhongBan);
+		// 
 		cboPhongBan = new JComboBox<>();
 		cboPhongBan.setPreferredSize(new Dimension(180, 30));
 		cboPhongBan.addItem("0.Tất cả");
-		cboPhongBan.addItem("1.Phòng tổ chức");
-		cboPhongBan.addItem("2.Phòng kỹ thuật");
-		cboPhongBan.addItem("3.Phòng nhân sự");
-		cboPhongBan.addItem("4.Phòng tài vụ");
+		int index = 1;
+		for (PhongBanEntity pb : PhongBanEntity.values()) {
+			String item = index + "." + pb.getTenPhong();   // hoặc pb.toString()
+		    cboPhongBan.addItem(item);
+		    index++;
+		}
+		
 		cboPhongBan.addActionListener(this);
 		panelPhongBan.add(cboPhongBan);
 		
@@ -191,10 +209,9 @@ public class JTabbedPaneGUI extends JFrame implements ActionListener {
 		lblPhongBanNV.setFont(new Font("Arial", Font.BOLD, 13));
 		cboPhongBanNV = new JComboBox<>();
 		cboPhongBanNV.setPreferredSize(new Dimension(250, 35));
-		cboPhongBanNV.addItem("Phòng tổ chức");
-		cboPhongBanNV.addItem("Phòng kỹ thuật");
-		cboPhongBanNV.addItem("Phòng nhân sự");
-		cboPhongBanNV.addItem("Phòng tài vụ");
+		for (PhongBanEntity pb : PhongBanEntity.values()) {
+		    cboPhongBanNV.addItem(pb);
+		}
 		panelPhai_PhongBanNV.add(lblPhaiNV);
 		panelPhai_PhongBanNV.add(cboPhaiNV);
 		panelPhai_PhongBanNV.add(lblPhongBanNV);
@@ -326,21 +343,16 @@ public class JTabbedPaneGUI extends JFrame implements ActionListener {
 			nv.setTenNV(tenNV);
 			nv.setTuoi(tuoi);
 			nv.setPhai(cboPhaiNV.getSelectedItem().toString().equals("Nam"));
-			nv.setPhongBan((String) cboPhongBanNV.getSelectedItem());
+			nv.setPhongBan((PhongBanEntity) cboPhongBanNV.getSelectedItem());
 			nv.setTienLuong(tienLuong);
 			
 			// Thêm vào danh sách
 			if (NhanVienMethod.addNhanVien(nv)) {
-				// Thêm vào database
-				if (NhanVienDao.themNhanVien(nv)) {
-					JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-					loadDataToTable();
-					XoaTrang();
-				} else {
-					JOptionPane.showMessageDialog(this, "Lỗi khi thêm vào cơ sở dữ liệu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-					NhanVienMethod.deleteNhanVien(maNV);
-				}
-			} else {
+				JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+				loadDataToTable();
+				XoaTrang();
+			}
+			else {
 				JOptionPane.showMessageDialog(this, "Mã nhân viên đã tồn tại!", "Thông báo", JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (NumberFormatException ex) {
@@ -367,8 +379,6 @@ public class JTabbedPaneGUI extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this, "Danh sách nhân viên trống, không có gì để lưu!", "Thông báo", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
-		
-		String filePath = "data/danhsachnhanvien.dat";
 		if (FileLoadAndSave.saveFile(list, filePath)) {
 			JOptionPane.showMessageDialog(this, "Lưu danh sách nhân viên thành công vào file:\n" + filePath, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 		} else {

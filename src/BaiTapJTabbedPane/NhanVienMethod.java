@@ -10,24 +10,15 @@ import java.util.HashMap;
 public class NhanVienMethod {
 	private ArrayList<NhanVienEntity> listNhanVien;
 	private HashMap<String, NhanVienEntity> mapNhanVien;
-	private NhanVienDao nhanVienDao;
 	
 	public NhanVienMethod() {
 		super();
 		this.listNhanVien = new ArrayList<NhanVienEntity>();
 		this.mapNhanVien = new HashMap<String, NhanVienEntity>();
-		this.nhanVienDao = new NhanVienDao();
-		loadDataFromDatabase();
 	}
 	
-	public void loadDataFromDatabase() {
-		ArrayList<NhanVienEntity> list = nhanVienDao.getDanhSachNhanVien();
-		for (NhanVienEntity nv : list) {
-			listNhanVien.add(nv);
-			mapNhanVien.put(nv.getMaNV(), nv);
-		}
-	}
 	
+	// Thêm nhân viên mới vào danh sách
 	public Boolean addNhanVien(NhanVienEntity nv) {
 		if (mapNhanVien.containsKey(nv.getMaNV())) {
 			return false;
@@ -37,6 +28,7 @@ public class NhanVienMethod {
 		return true;
 	}
 	
+	// Xóa nhân viên khỏi danh sách
 	public Boolean deleteNhanVien(String maNV) {
 		if (!mapNhanVien.containsKey(maNV)) {
 			return false;
@@ -51,5 +43,33 @@ public class NhanVienMethod {
 		return listNhanVien;
 	}
 	
+	// Load dữ liệu từ file
+	public Boolean loadDataFromFile(String path) {
+		try {
+			@SuppressWarnings("unchecked")
+			ArrayList<NhanVienEntity> loadedList = (ArrayList<NhanVienEntity>) FileLoadAndSave.loadFile(path);
+			if (loadedList != null) {
+				this.listNhanVien = loadedList;
+				this.mapNhanVien.clear();
+				for (NhanVienEntity nv : loadedList) {
+					mapNhanVien.put(nv.getMaNV(), nv);
+				}
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	// Save dữ liệu vào file
+	public Boolean saveDataToFile(String path) {
+		try {
+			return FileLoadAndSave.saveFile(listNhanVien, path);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 	
 }
